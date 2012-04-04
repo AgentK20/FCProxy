@@ -141,7 +141,7 @@ class ClientTunnel(asynchat.async_chat):
         self.bound = False
         self.server = None
         self.addr = "%s:%s" % addr
-        self.log("Incoming connection")
+        self.log("Incomming connection")
 
     def log(self, message):
         '''
@@ -166,8 +166,8 @@ class ClientTunnel(asynchat.async_chat):
                 (packetId,) = unpack(">B", self.ibuffer[0])
                 if packetId == 0xfe:        # Handle server list query
                     self.log("Received server list query")
-                    self.kick(u"%s§%s§%s" % (config.motd,
-                                            len(server.clients)-1, # Subtract one since connecting to poll server counts as a connection
+                    self.kick(u"%sÂ§%sÂ§%s" % (config.motd,
+                                            config.players,
                                             config.capacity))
                 elif packetId == 0x02:      # Handle handshake
                     if len(self.ibuffer) >= 3:
@@ -288,6 +288,7 @@ class Config:
             raise Exception("Invalid structure")
         self.hosts = self._expand(raw_config.get("hosts", {}))
         self.capacity = raw_config.get("capacity", 0)
+        self.players = raw_config.get("players", 0)
         self.motd = raw_config.get("motd", "Minecraft VirtualHost Proxy")
         print "Loaded %s host definitions" % len(self.hosts)
 
@@ -345,17 +346,7 @@ if __name__ == "__main__":
         print "Invalid configuration file:"
         print e
         sys.exit(1)
-    
-    try:
-        signal.signal(signal.SIGHUP, refresh)
-    except Exception as e:
-        print "NOTICE: SIGHUP not supported on your OS"
-    
-    try:
-        signal.signal(signal.SIGINFO, info)
-    except Exception as e:
-        print "NOTICE: SIGINFO not supported on your OS"
-    
+    signal.signal(signal.SIGHUP, refresh)
     signal.signal(signal.SIGTERM, terminate)
     signal.signal(signal.SIGINT, terminate)
     server = Listener('0.0.0.0', 25565)
