@@ -174,6 +174,8 @@ class ClientTunnel(asynchat.async_chat):
                         (l,) = unpack(">h", self.ibuffer[1:3])
                         if len(self.ibuffer) >= 3 + l * 2:
                             self.bind_server(unpack_string(self.ibuffer[1:]))
+                elif packetId == 0xfa:
+                    self.log("Custom payload detected.")
                 else:
                     self.kick("Unexpected packet")
 
